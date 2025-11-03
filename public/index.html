@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Short.io Human Clicks Top Countries</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body { font-family: Arial; background:#f4f6f8; display:flex; justify-content:center; padding:50px; }
+.container { background:white; padding:25px; border-radius:10px; box-shadow:0 3px 10px rgba(0,0,0,0.1); width:600px; }
+input, button { width:100%; padding:10px; margin:8px 0; border-radius:5px; border:1px solid #ccc; }
+button { background:#007bff; color:white; cursor:pointer; }
+button:hover { background:#0056b3; }
+canvas { margin-top:20px; }
+.stats { font-size:20px; text-align:center; margin:10px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+<h2>🔗 Short.io Human Clicks Dashboard</h2>
+
+<input id="linkId" placeholder="Enter Link ID">
+
+<button onclick="getStats()">Get Stats</button>
+
+<div class="stats" id="humanClicks">Human Clicks: --</div>
+
+<h3>Top Countries (Human Clicks)</h3>
+<canvas id="countryChart"></canvas>
+
+</div>
+
+<script>
+let countryChart;
+
+// Replace with your public API URL
+const API_URL = 'https://yourdomain.com/api/clicks';
+
+async function getStats(){
+  const linkId = document.getElementById('linkId').value;
+  if(!linkId){ alert("Please enter Link ID"); return; }
+
+  const res = await fetch(`${API_URL}?linkId=${linkId}`);
+  const data = await res.json();
+
+  document.getElementById('humanClicks').innerText = `Human Clicks: ${data.humanClicks}`;
+
+  const countries = data.countries || [];
+  const labels = countries.map(c=>c.countryName);
+  const values = countries.map(c=>c.score);
+
+  if(countryChart) countryChart.destroy();
+  const ctx = document.getElementById('countryChart').getContext('2d');
+  countryChart = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets:[{ label:'Human Clicks by Country', data:values, backgroundColor:'rgba(0,123,255,0.6)' }] },
+    options:{ responsive:true, scales:{ y:{ beginAtZero:true } } }
+  });
+}
+</script>
+</body>
+</html>
